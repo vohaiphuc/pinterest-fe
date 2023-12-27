@@ -1,0 +1,30 @@
+.profile-nav {
+    button:hover {
+        background-color: rgb(229, 229, 229);
+    }
+    .active {
+        span {
+            position: relative;
+
+            &::before {
+                position: absolute;
+                z-index: 10;
+                content: "";
+                bottom: -10px;
+                left: 0;
+                width: 100%;
+                border-bottom: 3px solid #000;
+            }
+        }
+        &:hover {
+            background-color: unset;
+        }
+    }
+}
+
+.form-edit-profile {
+    .ant-input {
+        border-radius: 15px;
+        padding: 15px;
+    }
+}

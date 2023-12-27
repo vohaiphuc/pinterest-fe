@@ -1,0 +1,16 @@
+.image-items {
+    img {
+        transition: all 0.1s;
+    }
+    .overlay {
+        display: none;
+    }
+    &:hover {
+        img {
+            filter: brightness(0.5);
+        }
+        .overlay {
+            display: block;
+        }
+    }
+}

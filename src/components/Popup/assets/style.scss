@@ -1,0 +1,19 @@
+.form-login {
+    .ant-input,
+    .ant-input-password,
+    .custom-date-picker-input {
+        border-radius: 15px;
+        padding: 15px;
+    }
+    .ant-form-item-explain-error {
+        font-size: small;
+        line-height: 16px;
+        margin-bottom: 8px;
+    }
+    .fake-link {
+        &:hover {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    }
+}

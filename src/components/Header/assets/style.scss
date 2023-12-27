@@ -1,0 +1,11 @@
+.header {
+    border-bottom: 1px solid #dcdcdc;
+    .nav-btn {
+        padding: 10px 16px;
+        border-radius: 24px;
+        &.active {
+            background-color: #000000;
+            color: white;
+        }
+    }
+}

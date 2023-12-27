@@ -1,0 +1,14 @@
+.upload-page {
+    .ant-upload {
+        position: relative;
+        width: 374px !important;
+        height: 453px !important;
+        background-color: #d8d8d8;
+        border-radius: 30px !important;
+        overflow: hidden !important;
+    }
+    .ant-input {
+        border-radius: 15px;
+        padding: 15px;
+    }
+}
