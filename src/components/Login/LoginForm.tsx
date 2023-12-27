@@ -1,13 +1,13 @@
 import React from "react";
 import useFormPopup from "../../hooks/useFormPopup";
-import { Divider, Form, Input } from "antd";
+import { Divider, Form, Input, message } from "antd";
 import Logo from "../Header/Logo";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
-
-const onFinish = (values: any) => {
-    console.log("Success:", values);
-};
+import { authServ } from "../../api/api";
+import { userLocalServ } from "../../api/localService";
+import { useAppDispatch } from "../../hooks/useRedux";
+import { setUserInfo } from "../../redux/userSlice";
 
 const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
@@ -15,11 +15,30 @@ const onFinishFailed = (errorInfo: any) => {
 
 type FieldType = {
     email: string;
-    password: string;
+    mat_khau: string;
 };
 
 const LoginForm: React.FC = () => {
-    const { openFormRegister } = useFormPopup();
+    const { openFormRegister, closeForm } = useFormPopup();
+    const dispatch = useAppDispatch();
+    const onFinish = (values: any) => {
+        console.log("Success:", values);
+        authServ
+            .login(values)
+            .then((res) => {
+                message.success("Đăng nhập thành công");
+                userLocalServ.set(res.data.content);
+                location.reload();
+            })
+            .catch((err) => {
+                console.log(err);
+                if (err.response.data.message === "Mật khẩu không đúng") {
+                    message.error(err.response.data.message);
+                } else {
+                    message.error("Có lỗi xảy ra, vui lòng thử lại!");
+                }
+            });
+    };
     return (
         <>
             <div className="flex-center-all flex-col">
@@ -56,7 +75,7 @@ const LoginForm: React.FC = () => {
 
                 <Form.Item<FieldType>
                     label="Mật khẩu"
-                    name="password"
+                    name="mat_khau"
                     rules={[
                         {
                             required: true,

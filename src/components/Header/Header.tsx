@@ -10,12 +10,26 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Avatar, Dropdown, MenuProps } from "antd";
 import useFormPopup from "../../hooks/useFormPopup";
+import { useAppSelector } from "../../hooks/useRedux";
+import { BASE_URL } from "../../api/config";
+import { userLocalServ } from "../../api/localService";
 
 const Header = () => {
     const { openFormLogin, openFormRegister } = useFormPopup();
-    const handleLogout = () => {};
+    const { userInfo } = useAppSelector((s) => s.userSlice);
+    const handleLogout = () => {
+        userLocalServ.remove();
+        location.reload();
+    };
 
-    const items: MenuProps["items"] = [
+    const items_logged_in: MenuProps["items"] = [
+        {
+            key: "1",
+            label: <p onClick={handleLogout}>Đăng xuất</p>,
+        },
+    ];
+
+    const items_logged_out: MenuProps["items"] = [
         {
             key: "1",
             label: <p onClick={openFormLogin}>Đăng nhập</p>,
@@ -24,28 +38,34 @@ const Header = () => {
             key: "2",
             label: <p onClick={openFormRegister}>Đăng ký</p>,
         },
-        {
-            key: "3",
-            label: <p onClick={handleLogout}>Đăng xuất</p>,
-        },
     ];
 
     const renderRightButtonsList = () => {
+        const src =
+            userInfo && userInfo.anh_dai_dien
+                ? BASE_URL + "/" + userInfo.anh_dai_dien
+                : "";
         const rightButtons = [
             <FontAwesomeIcon icon={faBell} size="xl" color="gray" />,
             <FontAwesomeIcon icon={faComment} size="xl" color="gray" />,
-            <NavLink to="/profile">
-                <Avatar size={24} />
-            </NavLink>,
+            userInfo && userInfo.anh_dai_dien && (
+                <NavLink to="/profile">
+                    <Avatar size={24} src={src} />
+                </NavLink>
+            ),
         ];
-        return rightButtons.map((item, index) => (
-            <div
-                key={index}
-                className="flex-center-all p-2 hover:bg-gray-100 rounded-full cursor-pointer"
-            >
-                {item}
-            </div>
-        ));
+        return rightButtons.map((item, index) => {
+            return (
+                item && (
+                    <div
+                        key={index}
+                        className="flex-center-all p-2 hover:bg-gray-100 rounded-full cursor-pointer"
+                    >
+                        {item}
+                    </div>
+                )
+            );
+        });
     };
 
     return (
@@ -62,7 +82,13 @@ const Header = () => {
             <SearchBar />
             <div className="flex-center-all">
                 {renderRightButtonsList()}
-                <Dropdown menu={{ items }} placement="bottom">
+                <Dropdown
+                    menu={{
+                        items: userInfo ? items_logged_in : items_logged_out,
+                    }}
+                    placement="bottom"
+                    overlayStyle={{ width: 150, textAlign: "right" }}
+                >
                     <FontAwesomeIcon
                         icon={faChevronDown}
                         className="hover:bg-gray-100 rounded-full p-1 cursor-pointer"

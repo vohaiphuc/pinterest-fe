@@ -14,7 +14,6 @@ const Home: React.FC = () => {
     const renderImgList = () => {
         return srcList.map((src) => <Image src={src} key={src} />);
     };
-    console.log("render");
 
     return (
         <div

@@ -1,13 +1,10 @@
 import React from "react";
 import useFormPopup from "../../hooks/useFormPopup";
-import { DatePicker, Divider, Form, Input } from "antd";
+import { DatePicker, Divider, Form, Input, message } from "antd";
 import Logo from "../Header/Logo";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
-
-const onFinish = (values: any) => {
-    console.log("Success:", values);
-};
+import { authServ } from "../../api/api";
 
 const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
@@ -15,12 +12,29 @@ const onFinishFailed = (errorInfo: any) => {
 
 type FieldType = {
     email: string;
-    password: string;
-    birthday: Date;
+    mat_khau: string;
+    ngay_sinh: Date;
 };
 
 const RegisterForm: React.FC = () => {
     const { openFormLogin } = useFormPopup();
+    const onFinish = (values: any) => {
+        console.log("Success:", values);
+        authServ
+            .register(values)
+            .then((res) => {
+                message.success("Đăng ký thành công");
+                openFormLogin();
+            })
+            .catch((err) => {
+                console.log(err);
+                if (err.response.data.message === "Email đã tồn tại") {
+                    message.error(err.response.data.message);
+                } else {
+                    message.error("Có lỗi xảy ra, vui lòng thử lại!");
+                }
+            });
+    };
     return (
         <>
             <div className="flex-center-all flex-col">
@@ -58,7 +72,7 @@ const RegisterForm: React.FC = () => {
 
                 <Form.Item<FieldType>
                     label="Mật khẩu"
-                    name="password"
+                    name="mat_khau"
                     rules={[
                         {
                             required: true,
@@ -72,7 +86,7 @@ const RegisterForm: React.FC = () => {
 
                 <Form.Item<FieldType>
                     label="Ngày sinh"
-                    name="birthday"
+                    name="ngay_sinh"
                     rules={[
                         {
                             required: true,
@@ -94,7 +108,7 @@ const RegisterForm: React.FC = () => {
                         className="bg-red-600 hover:bg-red-700 text-white font-bold w-full rounded-3xl py-2"
                         type="submit"
                     >
-                        Đăng nhập
+                        Đăng ký
                     </button>
                 </Form.Item>
                 <p className="font-bold text-center my-2">HOẶC</p>
