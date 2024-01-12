@@ -33,7 +33,7 @@ jobs:
             - add_ssh_keys:
                   fingerprints:
                       - 0f:f6:a0:17:10:23:1d:b7:80:de:73:c1:e7:64:d7:ce
-            - run: ssh -oStrictHostKeyChecking=no $DEPLOYED_USER@$DEPLOYED_SERVER './deploy.sh'
+            - run: ssh -oStrictHostKeyChecking=no -p 2018 root@103.97.124.134 './deploy.sh'
 
 workflows:
     my-pipeline:
@@ -47,6 +47,6 @@ workflows:
                           only:
                               - production
             # uncomment the 3 following lines to enable deploying
-            # - deploy:
-            #     requires:
-            #       - build-and-push
+            - deploy:
+                  requires:
+                      - build-and-push

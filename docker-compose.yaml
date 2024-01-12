@@ -1,0 +1,7 @@
+version: "3.3"
+services:
+  mywebsite:
+    image: vohaiphuc/img-vite-pin:latest
+    container_name: cons-vite-pin
+    ports:
+      - "5173:80"
