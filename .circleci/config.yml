@@ -37,7 +37,7 @@ jobs:
             - add_ssh_keys:
                   fingerprints:
                       - cd:1c:ee:9b:da:49:4a:4c:f8:ac:40:1e:34:25:b0:91
-            - run: ssh -oStrictHostKeyChecking=no -p 2018 root@103.97.124.134 './deploy.sh'
+            - run: ssh -oStrictHostKeyChecking=no -p 2018 root@103.97.124.134 'deploy.sh'
 
 workflows:
     my-pipeline:
