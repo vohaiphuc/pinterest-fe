@@ -1,4 +1,4 @@
-import { Avatar, message } from "antd";
+import { Avatar, Dropdown, MenuProps, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { messageTryAgain } from "../../utils/messageTryAgain";
@@ -40,7 +40,11 @@ const Detail = (props: Props) => {
         imageServ
             .getDetailById(hinh_id)
             .then((res) => {
-                console.log(res.data.content);
+                const image = res.data.content;
+                if (!image) {
+                    message.error("Hình ảnh không tồn tại");
+                    navigate("/");
+                }
                 setImg(res.data.content);
             })
             .catch((err) => {
@@ -59,7 +63,6 @@ const Detail = (props: Props) => {
                         new Date(b.ngay_binh_luan).getTime() -
                         new Date(a.ngay_binh_luan).getTime()
                 );
-                console.log("🚀 ~ .then ~ list:", list);
                 setCommentList(list);
             })
             .catch((err) => {
@@ -92,6 +95,29 @@ const Detail = (props: Props) => {
             });
     };
 
+    const items: MenuProps["items"] = [
+        {
+            key: "1",
+            label: (
+                <p
+                    onClick={() => {
+                        imageServ
+                            .deleteById(hinh_id)
+                            .then((res) => {
+                                message.success("Đã xóa hình ảnh");
+                                navigate(-1);
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                            });
+                    }}
+                >
+                    Xóa ảnh
+                </p>
+            ),
+        },
+    ];
+
     return (
         <div className="flex flex-col sm:flex-row mx-auto w-full max-w-[1016px] h-fit shadow-2xl">
             <div className="w-full sm:w-1/2 sm:rounded-s-3xl overflow-hidden ">
@@ -107,12 +133,14 @@ const Detail = (props: Props) => {
                     <div className="flex-items-center space-x-2">
                         <FontAwesomeIcon
                             icon={faArrowUpFromBracket}
-                            className="bg-white rounded-full p-2"
+                            className="bg-white rounded-full p-2 cursor-pointer"
                         />
-                        <FontAwesomeIcon
-                            icon={faEllipsis}
-                            className="bg-white rounded-full p-2"
-                        />
+                        <Dropdown menu={{ items }}>
+                            <FontAwesomeIcon
+                                icon={faEllipsis}
+                                className="bg-white rounded-full p-2 cursor-pointer"
+                            />
+                        </Dropdown>
                     </div>
                     <div className="flex-items-center space-x-2">
                         <div className="flex-items-center space-x-2">
