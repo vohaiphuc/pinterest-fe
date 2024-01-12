@@ -32,7 +32,7 @@ jobs:
             # Please add $SSH_KEY_FINGERPRINT, $DEPLOYED_USER@ and DEPLOYED_SERVER to project's environment
             - add_ssh_keys:
                   fingerprints:
-                      - $SSHKEY
+                      - "${SSHKEY}"
             - run: ssh -oStrictHostKeyChecking=no -p 2018 root@103.97.124.134 './deploy.sh'
 
 workflows:
