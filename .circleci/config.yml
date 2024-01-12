@@ -47,8 +47,8 @@ jobs:
             - add_ssh_keys:
                   fingerprints:
                       - 0f:f6:a0:17:10:23:1d:b7:80:de:73:c1:e7:64:d7:ce
-            - run: ssh -oStrictHostKeyChecking=no -p 2018 root@103.97.124.134
-                  ls
+            - run: |
+                  ssh -oStrictHostKeyChecking=no -p 2018 root@103.97.124.134 "cd front-deploy-dist && docker stop cons-vite-pin && docker rm cons-vite-pin && docker run -d --name cons-vite-pin img-vite-pin"
 
 workflows:
     version: 2
