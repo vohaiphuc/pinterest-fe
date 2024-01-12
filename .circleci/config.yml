@@ -9,13 +9,15 @@ jobs:
         environment:
             DOCKER_IMAGE: vohaiphuc/img-vite-pin
             DOCKER_TAG: latest
+            DOCKER_USERNAME: vohaiphuc
+            DOCKER_PW: ky2pKGD3MUypv4M
         executor: docker/docker
         steps:
             - setup_remote_docker
             - checkout
             - docker/check:
-                  docker-username: vohaiphuc
-                  docker-password: ky2pKGD3MUypv4M
+                  docker-username: $DOCKER_USERNAME
+                  docker-password: $DOCKER_PW
             - docker/build:
                   image: $DOCKER_IMAGE
                   tag: $DOCKER_TAG
