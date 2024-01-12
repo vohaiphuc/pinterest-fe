@@ -12,7 +12,7 @@ jobs:
             - run:
                   name: Build Docker image
                   command: |
-                      cd /workspace/dist  # Navigate to the dist directory
+                      cd /dist  # Navigate to the dist directory
                       docker build -t img-vite-pin .
             - run:
                   name: Save Docker image as a tarball
