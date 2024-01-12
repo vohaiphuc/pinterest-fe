@@ -30,8 +30,9 @@ jobs:
         executor: docker/docker
         steps:
             - run:
-                name: Debug SSHKEY
-                command: echo "SSHKEY value: ${SSHKEY}"
+                  name: Debug SSHKEY
+                  command: |
+                      echo "SSHKEY value: ${SSHKEY}"
             # Please add $SSH_KEY_FINGERPRINT, $DEPLOYED_USER@ and DEPLOYED_SERVER to project's environment
             - add_ssh_keys:
                   fingerprints:
