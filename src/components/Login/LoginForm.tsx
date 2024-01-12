@@ -8,6 +8,7 @@ import { authServ } from "../../api/api";
 import { userLocalServ } from "../../api/localService";
 import { useAppDispatch } from "../../hooks/useRedux";
 import { setUserInfo } from "../../redux/userSlice";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
 
 const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
@@ -40,10 +41,10 @@ const LoginForm: React.FC = () => {
             });
     };
     return (
-        <>
+        <div className="space-y-3">
             <div className="flex-center-all flex-col">
                 <Logo />
-                <h1 className="text-3xl font-semibold text-center">
+                <h1 className="text-xl sm:text-3xl font-semibold text-center">
                     Chào mừng bạn đến với Pinterest
                 </h1>
             </div>
@@ -55,7 +56,7 @@ const LoginForm: React.FC = () => {
                 onFinishFailed={onFinishFailed}
                 autoComplete="off"
                 layout="vertical"
-                className="w-full bg-white px-10"
+                className="w-full bg-white sm:px-10"
                 requiredMark={false}
             >
                 <Form.Item<FieldType>
@@ -110,7 +111,7 @@ const LoginForm: React.FC = () => {
                         </p>
                     </span>
                 </button>
-                <button
+                {/* <button
                     className="font-semibold w-full rounded-3xl py-2 px-3 bg-white border-[1px]"
                     type="submit"
                 >
@@ -120,7 +121,7 @@ const LoginForm: React.FC = () => {
                             Tiếp tục truy cập Google
                         </p>
                     </span>
-                </button>
+                </button> */}
             </Form>
 
             <div className="text-center text-xs">
@@ -146,7 +147,7 @@ const LoginForm: React.FC = () => {
                     Hãy bắt đầu tại đây!
                 </span>
             </div>
-        </>
+        </div>
     );
 };
 

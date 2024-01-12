@@ -11,8 +11,8 @@ import {
 import { Avatar, Dropdown, MenuProps } from "antd";
 import useFormPopup from "../../hooks/useFormPopup";
 import { useAppSelector } from "../../hooks/useRedux";
-import { BASE_URL } from "../../api/config";
 import { userLocalServ } from "../../api/localService";
+import { makeLink } from "../../utils/makeLink";
 
 const Header = () => {
     const { openFormLogin, openFormRegister } = useFormPopup();
@@ -43,7 +43,7 @@ const Header = () => {
     const renderRightButtonsList = () => {
         const src =
             userInfo && userInfo.anh_dai_dien
-                ? BASE_URL + "/" + userInfo.anh_dai_dien
+                ? makeLink(userInfo.anh_dai_dien)
                 : "";
         const rightButtons = [
             <FontAwesomeIcon icon={faBell} size="xl" color="gray" />,
@@ -69,7 +69,7 @@ const Header = () => {
     };
 
     return (
-        <div className="header flex-items-center py-3 space-x-3">
+        <div className="header flex-items-center p-3 mb-3 space-x-3 sticky top-0 z-20 bg-white shadow-md">
             <div className="flex-center-all">
                 <Logo />
                 <NavLink to="/" className="nav-btn font-semibold">

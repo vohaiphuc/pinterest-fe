@@ -4,6 +4,8 @@ import useFormPopup, { FormName } from "../../hooks/useFormPopup";
 import LoginForm from "../Login/LoginForm";
 import "./assets/style.scss";
 import RegisterForm from "../Register/RegisterForm";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
 
 type Props = {
     // children: ReactNode;
@@ -49,9 +51,17 @@ const Popup: React.FC<Props> = () => {
                 className="fixed z-50 top-0 left-0 w-full h-full flex-center-all"
                 style={{
                     backgroundColor: "rgba(0, 0, 0, 0.6)",
+                    // overflow: "scroll",
                 }}
             >
-                <div className="form-login mx-auto bg-white w-full px-16 py-5 space-y-5 max-w-md rounded-3xl max-h-full">
+                <div className="relative overflow-scroll form-login mx-auto bg-white w-full px-5 sm:px-16 py-3 sm:py-5 max-w-md rounded-3xl h-fit sm:max-h-full">
+                    <div className="absolute top-0 right-0 m-0">
+                        <FontAwesomeIcon
+                            icon={faClose}
+                            className="p-5"
+                            onClick={closeForm}
+                        />
+                    </div>
                     {renderPopupForm()}
                 </div>
             </div>

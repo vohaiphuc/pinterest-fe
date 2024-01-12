@@ -5,6 +5,8 @@ import Home from "./pages/Home/Home";
 import Profile from "./pages/Profile/Profile";
 import UploadPage from "./pages/Upload/Upload";
 import EditProfile from "./pages/Profile/Edit/EditProfile";
+import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
+import Detail from "./pages/Detail/Detail";
 
 function App() {
     return (
@@ -21,25 +23,51 @@ function App() {
                 <Route
                     path="/upload"
                     element={
-                        <MainLayout>
-                            <UploadPage />
-                        </MainLayout>
+                        <PrivateRoute>
+                            <MainLayout>
+                                <UploadPage />
+                            </MainLayout>
+                        </PrivateRoute>
                     }
                 />
                 <Route
                     path="/profile"
                     element={
-                        <MainLayout>
-                            <Profile />
-                        </MainLayout>
+                        <PrivateRoute>
+                            <MainLayout>
+                                <Profile />
+                            </MainLayout>
+                        </PrivateRoute>
                     }
                 />
                 <Route
                     path="/profile/edit"
                     element={
+                        <PrivateRoute>
+                            <MainLayout>
+                                <EditProfile />
+                            </MainLayout>
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/image"
+                    element={
+                        // <PrivateRoute>
                         <MainLayout>
-                            <EditProfile />
+                            <Detail />
                         </MainLayout>
+                        // </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/image/:hinh_id"
+                    element={
+                        // <PrivateRoute>
+                        <MainLayout>
+                            <Detail />
+                        </MainLayout>
+                        // </PrivateRoute>
                     }
                 />
             </Routes>

@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import FooterEditProfile from "./FooterEditProfile";
 import FormEditProfile, { FormRef } from "./FormEditProfile";
+import AvatarEditProfile from "./AvatarEditProfile";
 
 const EditProfile = () => {
     const formRef = useRef<FormRef>(null);
@@ -18,6 +19,7 @@ const EditProfile = () => {
                 Hãy giữ riêng tư thông tin cá nhân của bạn. Thông tin bạn thêm
                 vào đây hiển thị cho bất kỳ ai có thể xem hồ sơ của bạn.
             </p>
+            <AvatarEditProfile />
             <FormEditProfile ref={formRef} />
             <FooterEditProfile
                 handleSubmit={handleSubmit}

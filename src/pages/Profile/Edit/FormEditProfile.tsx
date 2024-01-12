@@ -1,9 +1,18 @@
-import React, { Ref, forwardRef, useImperativeHandle, useState } from "react";
-import { ConfigProvider, Form, Input } from "antd";
+import React, {
+    Ref,
+    forwardRef,
+    useEffect,
+    useImperativeHandle,
+    useState,
+} from "react";
+import { ConfigProvider, Form, Input, message } from "antd";
 import "../assets/style.scss";
-import { useAppDispatch } from "../../../hooks/useRedux";
+import { useAppDispatch, useAppSelector } from "../../../hooks/useRedux";
 import { setFormEditUserChange } from "../../../redux/formEditProfileSlice";
 import { isEqual } from "lodash";
+import { userServ } from "../../../api/api";
+import { messageTryAgain } from "../../../utils/messageTryAgain";
+import { userLocalServ } from "../../../api/localService";
 
 const onFinish = (values: any) => {
     console.log("Success:", values);
@@ -22,11 +31,11 @@ type FieldType = {
 };
 
 const initialValues: FieldType = {
-    firstName: "string",
-    lastName: "string",
-    intro: "string",
-    website: "string",
-    username: "string",
+    firstName: "",
+    lastName: "",
+    intro: "",
+    website: "",
+    username: "",
 };
 
 export type FormRef = {
@@ -40,6 +49,26 @@ interface IFormEditProfileProps {
 
 const FormEditProfile: React.FC<IFormEditProfileProps> = forwardRef(
     (_, ref) => {
+        const [userInfo, setUserInfo] = useState(initialValues);
+        useEffect(() => {
+            userServ
+                .getInfo()
+                .then((res) => {
+                    console.log(res);
+                    const fetchUser = res.data.content;
+                    setUserInfo({
+                        ...userInfo,
+                        firstName: fetchUser.ho_ten,
+                    });
+                    form.setFieldsValue({
+                        firstName: fetchUser.ho_ten,
+                    });
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        }, []);
+
         const dispatch = useAppDispatch();
         const [form] = Form.useForm();
 
@@ -51,6 +80,22 @@ const FormEditProfile: React.FC<IFormEditProfileProps> = forwardRef(
             form.validateFields()
                 .then((res) => {
                     onFinish(res);
+                    const newChange = {
+                        ho_ten: res.firstName,
+                        ngay_sinh: "",
+                    };
+                    let userLocalStorage = userLocalServ.get();
+                    userLocalStorage.user.ho_ten = newChange.ho_ten;
+                    userLocalServ.set(userLocalStorage);
+                    userServ
+                        .putUpdateInfo(newChange)
+                        .then((res) => {
+                            message.success("Cập nhật thông tin thành công");
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                            messageTryAgain();
+                        });
                 })
                 .catch((err) => {
                     onFinishFailed(err);
@@ -58,14 +103,14 @@ const FormEditProfile: React.FC<IFormEditProfileProps> = forwardRef(
         };
 
         const reset = () => {
-            form.resetFields(Object.keys(initialValues));
+            form.resetFields(Object.keys(userInfo));
             dispatch(setFormEditUserChange(false));
         };
 
         useImperativeHandle(ref, () => ({ submit, reset }));
 
         const handleInputChange = (_: FieldType, currentValues: FieldType) => {
-            const isChanged = !isEqual(initialValues, currentValues);
+            const isChanged = !isEqual(userInfo, currentValues);
             dispatch(setFormEditUserChange(isChanged));
         };
 
@@ -85,7 +130,7 @@ const FormEditProfile: React.FC<IFormEditProfileProps> = forwardRef(
             >
                 <Form
                     name="basic"
-                    initialValues={initialValues}
+                    initialValues={userInfo}
                     onFinish={onFinish}
                     onFinishFailed={onFinishFailed}
                     form={form}
@@ -108,9 +153,11 @@ const FormEditProfile: React.FC<IFormEditProfileProps> = forwardRef(
                         <Form.Item<FieldType>
                             label="Họ"
                             name="lastName"
-                            rules={[
-                                { required: true, message: "Vui lòng điền" },
-                            ]}
+                            rules={
+                                [
+                                    // { required: true, message: "Vui lòng điền" },
+                                ]
+                            }
                         >
                             <Input />
                         </Form.Item>
@@ -126,9 +173,11 @@ const FormEditProfile: React.FC<IFormEditProfileProps> = forwardRef(
                         <Form.Item<FieldType>
                             label="Tên người dùng"
                             name="username"
-                            rules={[
-                                { required: true, message: "Vui lòng điền" },
-                            ]}
+                            rules={
+                                [
+                                    // { required: true, message: "Vui lòng điền" },
+                                ]
+                            }
                         >
                             <Input
                                 onChange={(e) => {
