@@ -20,3 +20,5 @@ COPY ./dist .
 
 # Set the working directory to /etc/nginx
 WORKDIR /etc/nginx
+
+COPY nginx.conf .
