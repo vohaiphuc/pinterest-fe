@@ -2,7 +2,7 @@
 version: 2.1
 orbs:
     node: circleci/node@3.0.0
-    docker: circleci/docker@2.4.0
+    docker: circleci/docker@1.4.0
 
 jobs:
     build-and-push:
@@ -36,8 +36,8 @@ jobs:
             # Please add $SSH_KEY_FINGERPRINT, $DEPLOYED_USER@ and DEPLOYED_SERVER to project's environment
             - add_ssh_keys:
                   fingerprints:
-                      - "cd:1c:ee:9b:da:49:4a:4c:f8:ac:40:1e:34:25:b0:91"
-            - run: ssh -p 2018 root@103.97.124.134 './deploy.sh'
+                      - cd:1c:ee:9b:da:49:4a:4c:f8:ac:40:1e:34:25:b0:91
+            - run: ssh -oStrictHostKeyChecking=no -p 2018 root@103.97.124.134 './deploy.sh'
 
 workflows:
     my-pipeline:
