@@ -23,6 +23,6 @@ dist-ssr
 *.sw?
 
 # Deploy
-Dockerfile
-nginx.conf
-.dockerignore
+/Dockerfile
+/nginx.conf
+/.dockerignore
