@@ -1,0 +1,56 @@
+version: 2.1
+
+jobs:
+    build-docker-image:
+        docker:
+            - image: docker:20.10.0
+        steps:
+            - checkout
+            - setup_remote_docker
+            - attach_workspace:
+                  at: /workspace
+            - run:
+                  name: Build Docker image
+                  command: |
+                      cd /workspace/dist  # Navigate to the dist directory
+                      docker build -t img-vite-pin .
+            - run:
+                  name: Save Docker image as a tarball
+                  command: |
+                      docker save -o docker-image.tar img-vite-pin
+
+    deploy-to-vps:
+        docker:
+            - image: docker:20.10.0
+        steps:
+            - checkout
+            - setup_remote_docker
+            - attach_workspace:
+                  at: /workspace
+            - run:
+                  name: Load Docker image from tarball
+                  command: |
+                      docker load -i /workspace/docker-image.tar
+            - run:
+                  name: Update Docker container on VPS
+                  command: |
+                      # Replace the following with your actual deployment commands
+                      ssh -p 2018 root@103.97.124.134 "docker stop cons-vite-pin && docker rm cons-vite-pin || true"
+                      ssh -p 2018 root@103.97.124.134 "docker run -d --name cons-vite-pin img-vite-pin"
+
+workflows:
+    version: 2
+    build-and-deploy:
+        jobs:
+            - build-docker-image:
+                  filters:
+                      branches:
+                          only:
+                              - production
+            - deploy-to-vps:
+                  requires:
+                      - build-docker-image
+                  filters:
+                      branches:
+                          only:
+                              - production
