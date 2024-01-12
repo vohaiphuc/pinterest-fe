@@ -1,55 +1,72 @@
 version: 2.1
+orbs:
+    node: circleci/node@3.0.0
+    docker: circleci/docker@1.4.0
 
 jobs:
-    build-docker-image:
-        docker:
-            - image: docker:20.10.0
-        steps:
-            - checkout
-            - setup_remote_docker
-            - attach_workspace:
-                  at: /workspace
-            - run:
-                  name: Build Docker image
-                  command: |
-                      cd /dist  # Navigate to the dist directory
-                      docker build -t img-vite-pin .
-            - run:
-                  name: Save Docker image as a tarball
-                  command: |
-                      docker save -o docker-image.tar img-vite-pin
+    # build-docker-image:
+    #     docker:
+    #         - image: docker:20.10.0
+    #     steps:
+    #         - checkout
+    #         - setup_remote_docker
+    #         - attach_workspace:
+    #               at: /workspace
+    #         - run:
+    #               name: Build Docker image
+    #               command: |
+    #                   cd /dist  # Navigate to the dist directory
+    #                   docker build -t img-vite-pin .
+    #         - run:
+    #               name: Save Docker image as a tarball
+    #               command: |
+    #                   docker save -o docker-image.tar img-vite-pin
 
-    deploy-to-vps:
-        docker:
-            - image: docker:20.10.0
+    # deploy-to-vps:
+    #     docker:
+    #         - image: docker:20.10.0
+    #     steps:
+    #         - checkout
+    #         - setup_remote_docker
+    #         - attach_workspace:
+    #               at: /workspace
+    #         - run:
+    #               name: Load Docker image from tarball
+    #               command: |
+    #                   docker load -i /workspace/docker-image.tar
+    #         - run:
+    #               name: Update Docker container on VPS
+    #               command: |
+    #                   # Replace the following with your actual deployment commands
+    #                   ssh -p 2018 root@103.97.124.134 "docker stop cons-vite-pin && docker rm cons-vite-pin || true"
+    #                   ssh -p 2018 root@103.97.124.134 "docker run -d --name cons-vite-pin img-vite-pin"
+
+    deploy:
+        executor: docker/docker
         steps:
-            - checkout
-            - setup_remote_docker
-            - attach_workspace:
-                  at: /workspace
-            - run:
-                  name: Load Docker image from tarball
-                  command: |
-                      docker load -i /workspace/docker-image.tar
-            - run:
-                  name: Update Docker container on VPS
-                  command: |
-                      # Replace the following with your actual deployment commands
-                      ssh -p 2018 root@103.97.124.134 "docker stop cons-vite-pin && docker rm cons-vite-pin || true"
-                      ssh -p 2018 root@103.97.124.134 "docker run -d --name cons-vite-pin img-vite-pin"
+            - add_ssh_keys:
+                  fingerprints:
+                      - 0f:f6:a0:17:10:23:1d:b7:80:de:73:c1:e7:64:d7:ce
+            - run: ssh -oStrictHostKeyChecking=no -p 2018 root@103.97.124.134
+                  ls
 
 workflows:
     version: 2
     build-and-deploy:
         jobs:
-            - build-docker-image:
-                  filters:
-                      branches:
-                          only:
-                              - production
-            - deploy-to-vps:
-                  requires:
-                      - build-docker-image
+            # - build-docker-image:
+            #       filters:
+            #           branches:
+            #               only:
+            #                   - production
+            # - deploy-to-vps:
+            #       requires:
+            #           - build-docker-image
+            #       filters:
+            #           branches:
+            #               only:
+            #                   - production
+            - deploy:
                   filters:
                       branches:
                           only:
