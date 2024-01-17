@@ -50,44 +50,51 @@ const Home: React.FC = () => {
         } else {
             fetchImgWithSavedInfo();
         }
-        fetchImg();
     }, []);
 
     const [fetchImgList, setFetchImgList] = useState<IHinh_anh_Luu_hinh[]>([]);
-    const [currentImgPosition, setCurrentImgPosition] = useState<number>(0);
+    const [currentImgPosition, _setCurrentImgPosition] = useState<number>(0);
+    const refCurrentImgPosition = useRef(currentImgPosition);
+    const setCurrentImgPosition = (data) => {
+        refCurrentImgPosition.current = data;
+        _setCurrentImgPosition(data);
+    };
 
-    const fetchImg = (savedCurrentImgPosition = null) => {
-        const fetchEachTime = 10;
-        const start = savedCurrentImgPosition ? savedCurrentImgPosition : currentImgPosition
-        const end = start + fetchEachTime
-        setFetchImgList((prev) => [...prev, ...imgList.slice(
-            start,
-            end
-        )]);
+    const fetchImg = () => {
+        const start = refCurrentImgPosition.current;
+        const end = nextImgPosition(start);
+        setFetchImgList((prev) => [...prev, ...imgList.slice(start, end)]);
         setCurrentImgPosition(end);
     };
 
-    const nextImgPosition = prev => {
-        const step = 10
-        return prev + step
-    }
+    const nextImgPosition = (prev) => {
+        const step = 10;
+        return prev + step;
+    };
 
     useEffect(() => {
         if (imgList.length > 0) {
-            let savedCurrentImgPosition = nextImgPosition(currentImgPosition)
             const handleScroll = () => {
                 const windowHeight = window.innerHeight;
                 const documentHeight = document.documentElement.scrollHeight;
+
                 const scrollTop = window.scrollY;
-                const x = windowHeight + scrollTop
+                const x = windowHeight + scrollTop;
 
                 if (x > documentHeight - 10) {
-                    fetchImg(savedCurrentImgPosition);
-                    savedCurrentImgPosition = nextImgPosition(savedCurrentImgPosition)
+                    fetchImg();
                 }
             };
             window.addEventListener("scroll", handleScroll);
-            fetchImg()
+
+            let count = 0;
+            const intervalId = setInterval(() => {
+                fetchImg();
+                count++;
+                if (count > 2) {
+                    clearInterval(intervalId);
+                }
+            }, 1000);
 
             return () => {
                 window.removeEventListener("scroll", handleScroll);
