@@ -6,7 +6,7 @@ export const BASE_URL = 'https://pinterest-api.phucdev.io.vn/'
 
 export const https = axios.create({
     baseURL: BASE_URL,
-    timeout: 1000,
+    timeout: 10000,
     headers: {
         'Authorization': `Bearer ${userLocalServ.get()?.token}`
     }
