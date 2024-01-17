@@ -135,12 +135,14 @@ const Detail = (props: Props) => {
                             icon={faArrowUpFromBracket}
                             className="bg-white rounded-full p-2 cursor-pointer"
                         />
-                        <Dropdown menu={{ items }}>
-                            <FontAwesomeIcon
-                                icon={faEllipsis}
-                                className="bg-white rounded-full p-2 cursor-pointer"
-                            />
-                        </Dropdown>
+                        {user?.nguoi_dung_id === img?.nguoi_dung_id && (
+                            <Dropdown menu={{ items }}>
+                                <FontAwesomeIcon
+                                    icon={faEllipsis}
+                                    className="bg-white rounded-full p-2 cursor-pointer"
+                                />
+                            </Dropdown>
+                        )}
                     </div>
                     <div className="flex-items-center space-x-2">
                         <div className="flex-items-center space-x-2">
