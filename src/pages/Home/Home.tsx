@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useWindowWidth } from "@react-hook/window-size";
 import { imageServ } from "../../api/api";
 import { message } from "antd";
@@ -8,6 +8,8 @@ import { useAppSelector } from "../../hooks/useRedux";
 import useFormPopup from "../../hooks/useFormPopup";
 import ItemImage from "../../components/ItemImage/ItemImage";
 import useDevice from "../../hooks/useDevice";
+import "./assets/style.scss";
+import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 const imgWidth: number = 235;
 const Home: React.FC = () => {
@@ -48,10 +50,53 @@ const Home: React.FC = () => {
         } else {
             fetchImgWithSavedInfo();
         }
+        fetchImg();
     }, []);
 
+    const [fetchImgList, setFetchImgList] = useState<IHinh_anh_Luu_hinh[]>([]);
+    const [currentImgPosition, setCurrentImgPosition] = useState<number>(0);
+
+    const fetchImg = (savedCurrentImgPosition = null) => {
+        const fetchEachTime = 10;
+        const start = savedCurrentImgPosition ? savedCurrentImgPosition : currentImgPosition
+        const end = start + fetchEachTime
+        setFetchImgList((prev) => [...prev, ...imgList.slice(
+            start,
+            end
+        )]);
+        setCurrentImgPosition(end);
+    };
+
+    const nextImgPosition = prev => {
+        const step = 10
+        return prev + step
+    }
+
+    useEffect(() => {
+        if (imgList.length > 0) {
+            let savedCurrentImgPosition = nextImgPosition(currentImgPosition)
+            const handleScroll = () => {
+                const windowHeight = window.innerHeight;
+                const documentHeight = document.documentElement.scrollHeight;
+                const scrollTop = window.scrollY;
+                const x = windowHeight + scrollTop
+
+                if (x > documentHeight - 10) {
+                    fetchImg(savedCurrentImgPosition);
+                    savedCurrentImgPosition = nextImgPosition(savedCurrentImgPosition)
+                }
+            };
+            window.addEventListener("scroll", handleScroll);
+            fetchImg()
+
+            return () => {
+                window.removeEventListener("scroll", handleScroll);
+            };
+        }
+    }, [imgList]);
+
     const renderImgList = () => {
-        return imgList?.map((img) => (
+        return fetchImgList?.map((img) => (
             <ItemImage
                 key={img.hinh_id}
                 img={img}
@@ -93,14 +138,15 @@ const Home: React.FC = () => {
     };
 
     return (
-        <div
-            className="mx-auto gap-3 space-y-3 w-fit"
-            style={{
-                columnCount: columns,
+        <ResponsiveMasonry
+            columnsCountBreakPoints={{
+                350: columns,
+                750: columns,
+                900: columns,
             }}
         >
-            {renderImgList()}
-        </div>
+            <Masonry style={{ gap: 12 }}>{renderImgList()}</Masonry>
+        </ResponsiveMasonry>
     );
 };
 

@@ -40,8 +40,8 @@ const ItemImage: React.FC<IImageProps> = ({ img, handleSaveToGallery }) => {
         );
     };
     return (
-        <NavLink to={`/image/${img.hinh_id}`}>
-            <div className="relative w-fit rounded-2xl overflow-hidden image-items cursor-pointer mb-2">
+        <NavLink to={`/image/${img.hinh_id}`} className="mx-auto w-full">
+            <div className="relative w-full rounded-2xl overflow-hidden image-items cursor-pointer mb-2">
                 <img src={makeLink(img.duong_dan)} alt="" className="w-full" />
                 <div className="overlay absolute top-0 left-0 w-full h-full">
                     <div className="absolute p-3 top-0 left-0 w-full h-full flex items-end justify-between flex-col">
