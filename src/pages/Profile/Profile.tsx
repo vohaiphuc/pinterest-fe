@@ -1,43 +1,23 @@
+import "./assets/style.scss";
 import { faPinterest } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Avatar, message } from "antd";
-import "./assets/style.scss";
+import { Avatar } from "antd";
 import { useEffect, useState } from "react";
-import Image from "./Image";
-import { useWindowWidth } from "@react-hook/window-size";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { IHinh_anh, IHinh_anh_Luu_hinh } from "../../types/Image.type";
 import { makeLink } from "../../utils/makeLink";
 import { imageServ } from "../../api/api";
-import { userLocalServ } from "../../api/localService";
 import { messageTryAgain } from "../../utils/messageTryAgain";
 import { useAppSelector } from "../../hooks/useRedux";
-import useFormPopup from "../../hooks/useFormPopup";
-import ItemImage from "../../components/ItemImage/ItemImage";
 import useDevice from "../../hooks/useDevice";
 import StickyHeaderProfile from "./StickyHeaderProfile";
-
-const imgWidth: number = 235;
+import ImageThread from "../../components/ImageThread/ImageThread";
 
 const Profile = () => {
     const [toggleSaveButton, setToggleSaveButton] = useState(false);
     const [imgList, setImgList] = useState<IHinh_anh[]>([]);
-    const userInfo = useAppSelector((s) => s.userSlice.userInfo);
-    const { openFormLogin } = useFormPopup();
-    const navigate = useNavigate();
-
-    const width: number = useWindowWidth();
+    const { userInfo } = useAppSelector((s) => s.userSlice);
     const { isMobile } = useDevice();
-    const columns: number = isMobile ? 2 : Math.floor(width / imgWidth);
-    let gap: number =
-        columns == 1 ? 0 : width - (columns * imgWidth) / (columns - 1);
-    if (gap > 3) gap = 3;
-
-    useEffect(() => {
-        if (userInfo) {
-            fetchImgCreated();
-        }
-    }, [userInfo]);
 
     useEffect(() => {
         if (!toggleSaveButton) {
@@ -47,59 +27,11 @@ const Profile = () => {
         }
     }, [toggleSaveButton]);
 
-    const fetchImgWithSavedInfo = () => {
-        if (!toggleSaveButton) {
-            fetchImgCreated();
-        } else {
-            fetchImgSaved();
-        }
-    };
-
-    const handleSaveToGallery = (hinh_id: number, save: boolean) => {
-        if (save) {
-            imageServ
-                .postSaveById(hinh_id)
-                .then((res) => {
-                    console.log(res.data.content);
-                    message.success("Đã lưu");
-                    fetchImgWithSavedInfo();
-                })
-                .catch((err) => {
-                    console.log(err);
-                    messageTryAgain;
-                });
-        } else {
-            imageServ
-                .postUnsaveById(hinh_id)
-                .then((res) => {
-                    console.log(res.data.content);
-                    message.success("Đã bỏ lưu");
-                    fetchImgWithSavedInfo();
-                })
-                .catch((err) => {
-                    console.log(err);
-                    messageTryAgain;
-                });
-        }
-    };
-
-    const renderImgList = () => {
-        return imgList?.map((img) => (
-            // <Image src={makeLink(img.duong_dan)} key={img.hinh_id} />
-            <ItemImage
-                key={img.hinh_id}
-                img={img}
-                handleSaveToGallery={handleSaveToGallery}
-            />
-        ));
-    };
-
     const fetchImgCreated = () => {
         imageServ
             .getUploaded()
             .then((res) => {
-                console.log(res.data.content);
-                setImgList(res.data.content.reverse());
+                setImgList(res.data.content);
             })
             .catch((err) => {
                 console.log(err);
@@ -111,7 +43,6 @@ const Profile = () => {
         imageServ
             .getSaved()
             .then((res) => {
-                console.log(res.data.content);
                 setImgList(
                     res.data.content.sort(
                         (
@@ -132,7 +63,7 @@ const Profile = () => {
     };
 
     return (
-        <div className="max-w-5xl mx-auto flex flex-col items-center space-y-3">
+        <div className="mx-auto flex flex-col items-center space-y-3">
             {isMobile && <StickyHeaderProfile />}
             <Avatar src={makeLink(userInfo?.anh_dai_dien)} size={120} />
             <h2 className="font-semibold text-4xl">{userInfo?.ho_ten}</h2>
@@ -176,13 +107,9 @@ const Profile = () => {
                     <span>Đã lưu</span>
                 </button>
             </div>
-            <div
-                className="mx-auto gap-3 space-y-3 w-fit"
-                style={{
-                    columnCount: columns,
-                }}
-            >
-                {renderImgList()}
+
+            <div className="w-full">
+                <ImageThread fetchImgList={imgList} />
             </div>
         </div>
     );

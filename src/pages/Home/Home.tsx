@@ -1,160 +1,93 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useWindowWidth } from "@react-hook/window-size";
+import "./assets/style.scss";
 import { imageServ } from "../../api/api";
-import { message } from "antd";
 import { IHinh_anh, IHinh_anh_Luu_hinh } from "../../types/Image.type";
 import { messageTryAgain } from "../../utils/messageTryAgain";
 import { useAppSelector } from "../../hooks/useRedux";
-import useFormPopup from "../../hooks/useFormPopup";
-import ItemImage from "../../components/ItemImage/ItemImage";
-import useDevice from "../../hooks/useDevice";
-import "./assets/style.scss";
-import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
+import ImageThread from "../../components/ImageThread/ImageThread";
 
-const imgWidth: number = 235;
+const pageSize = 10;
+const scrollThreshhold = 200;
+
 const Home: React.FC = () => {
-    const width: number = useWindowWidth();
-    const { isMobile } = useDevice();
-    const columns: number = isMobile ? 2 : Math.floor(width / imgWidth);
-    let gap: number =
-        columns == 1 ? 0 : width - (columns * imgWidth) / (columns - 1);
-    if (gap > 3) gap = 3;
+    const { userInfo } = useAppSelector((s) => s.userSlice);
 
-    const [imgList, setImgList] = useState<IHinh_anh_Luu_hinh[]>([]);
-    const user = useAppSelector((s) => s.userSlice?.userInfo);
-    const { openFormLogin } = useFormPopup();
+    let fetching = false;
+    let lastPage = false;
 
+    const [fetchImgList, setFetchImgList] = useState<IHinh_anh_Luu_hinh[]>([]);
     const fetchImgWithSavedInfo = () => {
+        fetching = true;
         imageServ
-            .getAllWithSavedInfo()
+            .getAllWithSavedInfoPagination(0, fetchImgList.length)
             .then((res) => {
-                setImgList(res.data.content);
+                setFetchImgList(res.data.content);
+                fetching = false;
             })
             .catch((err) => {
                 console.log(err);
-                message.error("Có lỗi xảy ra, vui lòng thử lại!");
+                messageTryAgain();
+                fetching = false;
+            });
+    };
+
+    const fetchImgPagination = (pageIndex: number) => {
+        fetching = true;
+        const getAllImageServ = userInfo
+            ? imageServ.getAllWithSavedInfoPagination
+            : imageServ.getAllPagination;
+
+        getAllImageServ(pageIndex, pageSize)
+            .then((res) => {
+                const list = res.data.content;
+                if (list.length < pageSize) {
+                    lastPage = true;
+                    fetching = false;
+                    return;
+                }
+                setFetchImgList((prev) => [...prev, ...list]);
+                fetching = false;
+            })
+            .catch((err) => {
+                console.log(err);
+                fetching = false;
             });
     };
 
     useEffect(() => {
-        if (!user) {
-            imageServ
-                .getAll()
-                .then((res) => {
-                    setImgList(res.data.content);
-                })
-                .catch((err) => {
-                    console.log(err);
-                    message.error("Có lỗi xảy ra, vui lòng thử lại!");
-                });
-        } else {
-            fetchImgWithSavedInfo();
-        }
+        let pageIndex = 0;
+
+        const handleScroll = () => {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.scrollY;
+            const x = windowHeight + scrollTop;
+            if (
+                x > documentHeight - scrollThreshhold &&
+                !fetching &&
+                !lastPage
+            ) {
+                fetchImgPagination(pageIndex);
+                pageIndex++;
+            }
+        };
+        window.addEventListener("scroll", handleScroll);
+
+        const initialFetchTime = 2;
+        const intervalFetchImgPagination = setInterval(() => {
+            fetchImgPagination(pageIndex);
+            pageIndex++;
+            if (pageIndex > initialFetchTime) {
+                clearInterval(intervalFetchImgPagination);
+            }
+        }, 1000);
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
     }, []);
 
-    const [fetchImgList, setFetchImgList] = useState<IHinh_anh_Luu_hinh[]>([]);
-    const [currentImgPosition, _setCurrentImgPosition] = useState<number>(0);
-    const refCurrentImgPosition = useRef(currentImgPosition);
-    const setCurrentImgPosition = (data) => {
-        refCurrentImgPosition.current = data;
-        _setCurrentImgPosition(data);
-    };
-
-    const fetchImg = () => {
-        const start = refCurrentImgPosition.current;
-        const end = nextImgPosition(start);
-        setFetchImgList((prev) => [...prev, ...imgList.slice(start, end)]);
-        setCurrentImgPosition(end);
-    };
-
-    const nextImgPosition = (prev) => {
-        const step = 10;
-        return prev + step;
-    };
-
-    useEffect(() => {
-        if (imgList.length > 0) {
-            const handleScroll = () => {
-                const windowHeight = window.innerHeight;
-                const documentHeight = document.documentElement.scrollHeight;
-
-                const scrollTop = window.scrollY;
-                const x = windowHeight + scrollTop;
-
-                if (x > documentHeight - 10) {
-                    fetchImg();
-                }
-            };
-            window.addEventListener("scroll", handleScroll);
-
-            let count = 0;
-            const intervalId = setInterval(() => {
-                fetchImg();
-                count++;
-                if (count > 2) {
-                    clearInterval(intervalId);
-                }
-            }, 1000);
-
-            return () => {
-                window.removeEventListener("scroll", handleScroll);
-            };
-        }
-    }, [imgList]);
-
-    const renderImgList = () => {
-        return fetchImgList?.map((img) => (
-            <ItemImage
-                key={img.hinh_id}
-                img={img}
-                handleSaveToGallery={handleSaveToGallery}
-            />
-        ));
-    };
-
-    const handleSaveToGallery = (hinh_id: number, save: boolean) => {
-        if (!user) {
-            openFormLogin();
-            return;
-        }
-        if (save) {
-            imageServ
-                .postSaveById(hinh_id)
-                .then((res) => {
-                    console.log(res.data.content);
-                    message.success("Đã lưu");
-                    fetchImgWithSavedInfo();
-                })
-                .catch((err) => {
-                    console.log(err);
-                    messageTryAgain;
-                });
-        } else {
-            imageServ
-                .postUnsaveById(hinh_id)
-                .then((res) => {
-                    console.log(res.data.content);
-                    message.success("Đã bỏ lưu");
-                    fetchImgWithSavedInfo();
-                })
-                .catch((err) => {
-                    console.log(err);
-                    messageTryAgain;
-                });
-        }
-    };
-
-    return (
-        <ResponsiveMasonry
-            columnsCountBreakPoints={{
-                350: columns,
-                750: columns,
-                900: columns,
-            }}
-        >
-            <Masonry style={{ gap: 12 }}>{renderImgList()}</Masonry>
-        </ResponsiveMasonry>
-    );
+    return <ImageThread fetchImgList={fetchImgList} />;
 };
 
 export default Home;

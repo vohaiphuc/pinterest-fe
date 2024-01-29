@@ -19,6 +19,7 @@ import { I_BinhLuan } from "../../types/Comment.type";
 import CommentItem from "./CommentItem";
 import CommentInput from "./CommentInput";
 import useFormPopup from "../../hooks/useFormPopup";
+import SaveImageButton from "../../components/Buttons/SaveImageButton";
 
 type Props = {};
 
@@ -28,8 +29,9 @@ const Detail = (props: Props) => {
     const navigate = useNavigate();
     const [img, setImg] = useState<IHinh_anh>(null);
     const [commentList, setCommentList] = useState<I_BinhLuan[]>(null);
-    const user = useAppSelector((s) => s.userSlice.userInfo);
+    const { userInfo } = useAppSelector((s) => s.userSlice);
     const { openFormLogin } = useFormPopup();
+    const [isSaved, setIsSaved] = useState<boolean>(false);
 
     useEffect(() => {
         if (!hinh_id) {
@@ -50,9 +52,21 @@ const Detail = (props: Props) => {
             .catch((err) => {
                 console.log(err);
             });
-
+        checkImgSave();
         fetchCommentList();
     }, [params]);
+
+    const checkImgSave = () => {
+        imageServ
+            .getCheckSavedById(hinh_id)
+            .then((res) => {
+                const save = res.data.content?.da_luu ? true : false;
+                setIsSaved(save);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
     const fetchCommentList = () => {
         commentServ
@@ -135,7 +149,7 @@ const Detail = (props: Props) => {
                             icon={faArrowUpFromBracket}
                             className="bg-white rounded-full p-2 cursor-pointer"
                         />
-                        {user?.nguoi_dung_id === img?.nguoi_dung_id && (
+                        {userInfo?.nguoi_dung_id === img?.nguoi_dung_id && (
                             <Dropdown menu={{ items }}>
                                 <FontAwesomeIcon
                                     icon={faEllipsis}
@@ -149,14 +163,10 @@ const Detail = (props: Props) => {
                             <p>Hồ sơ</p>
                             <FontAwesomeIcon icon={faChevronDown} />
                         </div>
-                        <button
-                            className="text-white font-semibold bg-red-500 rounded-3xl px-5 py-3"
-                            // onClick={() => {
-                            //     handleSaveToGallery(img.hinh_id, true);
-                            // }}
-                        >
-                            Lưu
-                        </button>
+                        <SaveImageButton
+                            hinh_id={hinh_id}
+                            isImageSaved={isSaved}
+                        />
                     </div>
                 </div>
                 {/* author */}
@@ -176,7 +186,7 @@ const Detail = (props: Props) => {
                         </div>
                     </div>
                     <button className="text-black font-semibold bg-gray-100 hover:bg-gray-200 rounded-3xl px-5 py-3">
-                        {img?.nguoi_dung_id === user?.nguoi_dung_id
+                        {img?.nguoi_dung_id === userInfo?.nguoi_dung_id
                             ? "Chính là bạn"
                             : "Theo dõi"}
                     </button>
@@ -196,11 +206,11 @@ const Detail = (props: Props) => {
                 </div>
                 {/* INPUT COMMENT */}
                 <div className="sticky bottom-0 w-full z-10 p-5 space-y-5 sm:rounded-br-3xl border-t-[1px] border-gray-200 bg-white">
-                    {user ? (
+                    {userInfo ? (
                         <CommentInput
                             sendComment={sendComment}
                             countComment={commentList?.length}
-                            anh_dai_dien={user.anh_dai_dien}
+                            anh_dai_dien={userInfo.anh_dai_dien}
                         />
                     ) : (
                         <button
