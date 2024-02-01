@@ -11,7 +11,7 @@ interface IImageProps {
 }
 
 const Image: React.FC<IImageProps> = ({ src }) => {
-    const handleSaveToGallery = () => {
+    const handleSave = () => {
         console.log("Save to personal's gallery");
     };
     return (
@@ -21,7 +21,7 @@ const Image: React.FC<IImageProps> = ({ src }) => {
                 <div className="absolute p-3 top-0 left-0 w-full h-full flex items-end justify-between flex-col">
                     <button
                         className="text-white font-semibold bg-red-500 rounded-3xl px-5 py-3"
-                        onClick={handleSaveToGallery}
+                        onClick={handleSave}
                     >
                         Lưu
                     </button>

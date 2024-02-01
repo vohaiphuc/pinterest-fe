@@ -5,12 +5,33 @@ import { IHinh_anh, IHinh_anh_Luu_hinh } from "../../types/Image.type";
 import { messageTryAgain } from "../../utils/messageTryAgain";
 import { useAppSelector } from "../../hooks/useRedux";
 import ImageThread from "../../components/ImageThread/ImageThread";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const pageSize = 10;
 const scrollThreshhold = 200;
 
-const Home: React.FC = () => {
+const Search: React.FC = () => {
     const { userInfo } = useAppSelector((s) => s.userSlice);
+    const [params] = useSearchParams();
+    const navigate = useNavigate();
+    const keyword = params.get("s");
+    const [imgList, setImgList] = useState<IHinh_anh[]>([]);
+
+    useEffect(() => {
+        if (!keyword) {
+            navigate("/");
+        }
+        imageServ
+            .getSearch(keyword)
+            .then((res) => {
+                const list = res.data.content;
+                setImgList(list);
+            })
+            .catch((err) => {
+                messageTryAgain();
+                console.log(err);
+            });
+    }, [keyword]);
 
     let fetching = false;
     let lastPage = false;
@@ -54,40 +75,31 @@ const Home: React.FC = () => {
             });
     };
 
-    useEffect(() => {
-        let pageIndex = 0;
+    // useEffect(() => {
+    //     let pageIndex = 0;
 
-        const handleScroll = () => {
-            const windowHeight = window.innerHeight;
-            const documentHeight = document.documentElement.scrollHeight;
-            const scrollTop = window.scrollY;
-            const x = windowHeight + scrollTop;
-            if (
-                x > documentHeight - scrollThreshhold &&
-                !fetching &&
-                !lastPage
-            ) {
-                fetchImgPagination(pageIndex);
-                pageIndex++;
-            }
-        };
-        window.addEventListener("scroll", handleScroll);
+    //     const handleScroll = () => {
+    //         const windowHeight = window.innerHeight;
+    //         const documentHeight = document.documentElement.scrollHeight;
+    //         const scrollTop = window.scrollY;
+    //         const x = windowHeight + scrollTop;
+    //         if (
+    //             x > documentHeight - scrollThreshhold &&
+    //             !fetching &&
+    //             !lastPage
+    //         ) {
+    //             fetchImgPagination(pageIndex);
+    //             pageIndex++;
+    //         }
+    //     };
+    //     window.addEventListener("scroll", handleScroll);
 
-        const initialFetchTime = 2;
-        const intervalFetchImgPagination = setInterval(() => {
-            fetchImgPagination(pageIndex);
-            pageIndex++;
-            if (pageIndex > initialFetchTime) {
-                clearInterval(intervalFetchImgPagination);
-            }
-        }, 1000);
+    //     return () => {
+    //         window.removeEventListener("scroll", handleScroll);
+    //     };
+    // }, []);
 
-        return () => {
-            window.removeEventListener("scroll", handleScroll);
-        };
-    }, []);
-
-    return <ImageThread fetchImgList={fetchImgList} />;
+    return <ImageThread fetchImgList={imgList} />;
 };
 
-export default Home;
+export default Search;

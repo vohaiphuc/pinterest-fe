@@ -7,6 +7,7 @@ import UploadPage from "./pages/Upload/Upload";
 import EditProfile from "./pages/Profile/Edit/EditProfile";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import Detail from "./pages/Detail/Detail";
+import Search from "./pages/Search/Search";
 
 function App() {
     return (
@@ -68,6 +69,14 @@ function App() {
                             <Detail />
                         </MainLayout>
                         // </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/search"
+                    element={
+                        <MainLayout>
+                            <Search />
+                        </MainLayout>
                     }
                 />
             </Routes>
