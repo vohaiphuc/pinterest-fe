@@ -13,11 +13,15 @@ import useDevice from "../../hooks/useDevice";
 import StickyHeaderProfile from "./StickyHeaderProfile";
 import ImageThread from "../../components/ImageThread/ImageThread";
 
+const maxFetchEachTime = 10;
+const scrollThreshhold = 200;
+
 const Profile = () => {
     const [toggleSaveButton, setToggleSaveButton] = useState(false);
-    const [imgList, setImgList] = useState<IHinh_anh[]>([]);
+    const [imgList, setImgList] = useState<IHinh_anh[]>(null);
     const { userInfo } = useAppSelector((s) => s.userSlice);
     const { isMobile } = useDevice();
+    const [fetchImgList, setFetchImgList] = useState<IHinh_anh[]>([]);
 
     useEffect(() => {
         if (!toggleSaveButton) {
@@ -26,6 +30,50 @@ const Profile = () => {
             fetchImgSaved();
         }
     }, [toggleSaveButton]);
+
+    const updateFetchList = (reset: boolean) => {
+        setFetchImgList((prevImgList) => {
+            return reset
+                ? imgList.slice(0, maxFetchEachTime)
+                : [
+                      ...prevImgList,
+                      ...imgList.slice(
+                          prevImgList.length,
+                          prevImgList.length + maxFetchEachTime
+                      ),
+                  ];
+        });
+    };
+
+    useEffect(() => {
+        if (!imgList) {
+            return;
+        }
+        updateFetchList(true);
+        let fetching = false;
+        let timeFetchLeft = Math.ceil(imgList.length / maxFetchEachTime);
+        const handleScroll = () => {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.scrollY;
+            const x = windowHeight + scrollTop;
+            if (x > documentHeight - scrollThreshhold && !fetching) {
+                fetching = true;
+                setTimeout(() => {
+                    updateFetchList(false);
+                    fetching = false;
+                    timeFetchLeft--;
+                    if (timeFetchLeft === 0) {
+                        window.removeEventListener("scroll", handleScroll);
+                    }
+                }, 500);
+            }
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, [imgList]);
 
     const fetchImgCreated = () => {
         imageServ
@@ -63,7 +111,7 @@ const Profile = () => {
     };
 
     return (
-        <div className="mx-auto flex flex-col items-center space-y-3">
+        <div className="mx-auto flex flex-col items-center space-y-3 overflow-auto">
             {isMobile && <StickyHeaderProfile />}
             <Avatar src={makeLink(userInfo?.anh_dai_dien)} size={120} />
             <h2 className="font-semibold text-4xl">{userInfo?.ho_ten}</h2>
@@ -109,7 +157,7 @@ const Profile = () => {
             </div>
 
             <div className="w-full">
-                <ImageThread fetchImgList={imgList} />
+                <ImageThread fetchImgList={fetchImgList} />
             </div>
         </div>
     );
