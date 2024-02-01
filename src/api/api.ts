@@ -7,7 +7,7 @@ export const imageServ = {
     getAllWithSavedInfo: () => https.get("/image/saved-info"),
     getAllWithSavedInfoPagination: (pageIndex: number, pageSize: number) => https.get(`/image/saved-info?pagination=true&pageIndex=${pageIndex}&pageSize=${pageSize}`),
     getUploaded: () => https.get("/image/user-uploaded"),
-    getSearch: () => { },
+    getSearch: (keyword: string) => https.get(`/image/search?s=${keyword}`),
     getDetailById: (hinh_id: number) => https.get(`/image/detail/${hinh_id}`),
     deleteById: (hinh_id: number) => https.delete(`/image/${hinh_id}`),
     postUpload: (formData: FormData) => https.post("/image/upload", formData),
